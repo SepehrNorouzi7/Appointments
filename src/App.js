@@ -8,8 +8,25 @@ import { useState } from "react";
 
 function App() {
 
-  let [appointmentList, setAppointmentList] = useState()
+  let [appointmentList, setAppointmentList] = useState();
+  let [query, setQuery] = useState("");
+  let [sortBy, setSortBy] = useState("firstName");
+  let [orderBy, setOrderBy] = useState("asc");
 
+  const filteredAppointments = appointmentList.filter(
+    item => {
+      return (
+        item.firstName.toLowerCase().includes(query.toLowerCase()) ||
+        item.lastName.toLowerCase().includes(query.toLowerCase()) ||
+        item.aptNotes.toLowerCase().includes(query.toLowerCase())
+      )
+    }
+  ).sort((a, b) => {
+    let order = (orderBy === "asc") ? 1 : -1;
+    return (
+      a[sortBy].toLowerCase() < b[sortBy].toLowerCase() ? -1 * order : 1 * order
+    )
+  })
   return (
     <div className="App">
       <Container>
@@ -23,7 +40,7 @@ function App() {
         </Row>
         <Row className='justify-content-center'>
           <Col md={3}>
-            <Search />
+            <Search query={query} onChangeQuery={myQuery => setQuery(myQuery)} />
           </Col>
         </Row>
         <Row className='justify-content-center'>
@@ -31,7 +48,7 @@ function App() {
             <Card className="mb=3">
               <Card.Header>Appointments</Card.Header>
               <ListGroup variant="flush">
-                {appointmentList.map(appointment => (
+                {filteredAppointments.map(appointment => (
                   <AppointmentInfo key={appointment.id} appointment={appointment}
                   onDeleteAppointment={
                     appointmentId => setAppointmentList(appointmentList.filter(
